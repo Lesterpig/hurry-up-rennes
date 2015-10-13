@@ -1,0 +1,22 @@
+{
+  "uuid": "b7dccf94-425b-4a4c-a708-9f2dd764f539",
+  "shortName": "Hurry Up!",
+  "longName": "Hurry Up! Rennes",
+  "companyName": "Lesterpig",
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite"],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "KEY_STOPS"         : 0,
+    "KEY_STOP_TIMES"    : 1,
+    "KEY_ASK_STOP"      : 2,
+    "KEY_NO_STOP_TIMES" : 3
+  },
+  "resources": {
+    "media": []
+  },
+  "capabilities": [ "location" ]
+}

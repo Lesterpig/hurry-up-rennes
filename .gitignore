@@ -1,0 +1,9 @@
+
+# Ignore build generated files
+build
+src/js/pebble-js-app.js
+web/node_modules
+web/config.json
+
+# Ignore waf lock file
+.lock-waf*

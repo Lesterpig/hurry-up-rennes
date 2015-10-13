@@ -1,0 +1,17 @@
+{
+  "name": "hurry-up-rennes-web",
+  "version": "1.0.0",
+  "description": "The web server powering hurry-up-rennes Pebble app",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "author": "Lesterpig",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^1.4.2",
+    "express": "^4.13.3",
+    "moment": "^2.10.6",
+    "request-easy-cache": "^1.3.0"
+  }
+}
