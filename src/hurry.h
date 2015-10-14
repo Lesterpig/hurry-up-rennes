@@ -33,9 +33,9 @@ typedef struct stop_time {
 
 // Global variables
 
-char data_stops_names[NB_STOPS][STOP_LENGTH];
-int data_nb_stop_times;
-stop_time* data_stop_times;
+extern char data_stops_names[NB_STOPS][STOP_LENGTH];
+extern int data_nb_stop_times;
+extern stop_time* data_stop_times;
 
 // Starter functions
 
