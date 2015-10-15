@@ -18,7 +18,7 @@ static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t s
 }
 
 static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
-  menu_cell_basic_header_draw(ctx, cell_layer, data_stops_names[current_stop_id]);
+  menu_cell_basic_header_draw(ctx, cell_layer, data_stops[current_stop_id]);
 }
 
 

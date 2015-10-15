@@ -1,11 +1,24 @@
 module.exports = {
 
-  sendStops : function(stops) {
+  sendStops : function(stops, nearest) {
+
+    var key = 'KEY_STOPS_BOOK'
+    if(nearest) {
+      key = 'KEY_STOPS_NEAR'
+    }
+
+    var data = []
+    stops.forEach(function(s) {
+      data.push(s.name + '\0')
+    })
+
+    var obj  = {}
+    obj[key] = data
+
+    console.log('Sending ' + JSON.stringify(obj))
 
     Pebble.sendAppMessage(
-      {
-        'KEY_STOPS' : stops[0].name + '\0' + stops[1].name + '\0' + stops[2].name + '\0'
-      },
+      obj,
       function() {},
       function(e) { console.error('Error: ' + e) }
     )
@@ -13,6 +26,8 @@ module.exports = {
   },
 
   sendTimes : function(times) {
+
+    console.log('Sending stop times')
 
     var data = []
     var msg

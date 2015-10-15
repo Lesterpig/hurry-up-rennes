@@ -1,0 +1,5 @@
+{
+    "node": true,
+    "asi" : true,     // Suppress warning about missing semi-colons
+    "laxcomma" : true // Suppress warning about comma-first rows
+}

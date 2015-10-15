@@ -10,10 +10,13 @@
     "watchface": false
   },
   "appKeys": {
-    "KEY_STOPS"         : 0,
-    "KEY_STOP_TIMES"    : 1,
-    "KEY_ASK_STOP"      : 2,
-    "KEY_NO_STOP_TIMES" : 3
+    "KEY_STOPS_BOOK"    : 0,
+    "KEY_STOPS_NEAR"    : 1,
+    "KEY_STOP_TIMES"    : 2,
+    "KEY_NO_STOPS_BOOK" : 20,
+    "KEY_NO_STOPS_NEAR" : 21,
+    "KEY_NO_STOP_TIMES" : 22,
+    "KEY_ASK_STOP"      : 100
   },
   "resources": {
     "media": []

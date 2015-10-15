@@ -1,6 +1,9 @@
 #include "hurry.h"
 
-char data_stops_names[NB_STOPS][STOP_LENGTH];
+// Define global variables
+int data_nb_stops[2] = { 0, -1 };
+char* data_stops[MAX_STOPS] = { NULL };
+
 int data_nb_stop_times = -1;
 stop_time* data_stop_times = NULL;
 

@@ -1,77 +1,115 @@
 #include "hurry.h"
 
-#define NUM_MENU_SECTIONS 1
-#define NUM_FIRST_MENU_ITEMS 3
+static Window *s_window;
+static MenuLayer *s_menu_layer;
 
-static Window *s_main_window;
-static SimpleMenuLayer *s_simple_menu_layer;
-static SimpleMenuSection s_menu_sections[NUM_MENU_SECTIONS];
-static SimpleMenuItem s_first_menu_items[NUM_FIRST_MENU_ITEMS];
-
-static void stops_mark_dirty() {
-  layer_mark_dirty(simple_menu_layer_get_layer(s_simple_menu_layer));
+static int nb_for_section(int section) {
+  if (section > 2) {
+    return 0;
+  }
+  if (data_nb_stops[section] < 0) {
+    return 1;
+  } else {
+    return data_nb_stops[section];
+  }
 }
 
-static void menu_select_callback(int index, void *ctx) {
+static uint16_t menu_get_num_sections_callback(MenuLayer *menu_layer, void *data) {
+  return (nb_for_section(0) > 0 ? 1 : 0) + (nb_for_section(1) > 0 ? 1 : 0);
+}
+
+static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
+  if (section_index == 0 && nb_for_section(0) > 0) {
+    return nb_for_section(0);
+  } else {
+    return nb_for_section(1);
+  }
+}
+
+static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
+  return MENU_CELL_BASIC_HEADER_HEIGHT;
+}
+
+static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
+  if (section_index == 0 && nb_for_section(0) > 0) {
+    menu_cell_basic_header_draw(ctx, cell_layer, "Bookmarks");
+  } else {
+    menu_cell_basic_header_draw(ctx, cell_layer, "Nearest");
+  }
+}
+
+
+static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
+
+  int index = cell_index->row;
+  int section = 0;
+  if (cell_index->section == 1 || nb_for_section(0) == 0) {
+    index += MAX_BOOK_STOPS;
+    section = 1;
+  }
+
+  if(data_nb_stops[section] == -1) {
+    menu_cell_basic_draw(ctx, cell_layer, "Loading...", NULL, NULL);
+  } else {
+    menu_cell_basic_draw(ctx, cell_layer, data_stops[index], NULL, NULL);
+  }
+}
+
+static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
+  int index = cell_index->row;
+  int section = 0;
+  if (cell_index->section == 1 || nb_for_section(0) == 0) {
+    index += MAX_BOOK_STOPS;
+    section = 1;
+  }
+
+  if(data_nb_stops[section] <= 0) {
+    return;
+  }
+
   ask_for_stop_times(index);
   print_times_menu(index);
 }
 
-static void main_window_load(Window *window) {
-
-  // Although we already defined NUM_FIRST_MENU_ITEMS, you can define
-  // an int as such to easily change the order of menu items later
-  int num_a_items = 0;
-
-  s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "Loading...",
-    .callback = menu_select_callback,
-  };
-  s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "Loading...",
-    .callback = menu_select_callback,
-  };
-  s_first_menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "Loading...",
-    .callback = menu_select_callback,
-  };
-
-  s_menu_sections[0] = (SimpleMenuSection) {
-    .num_items = NUM_FIRST_MENU_ITEMS,
-    .items = s_first_menu_items,
-  };
+static void window_load(Window *window) {
 
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
 
-  s_simple_menu_layer = simple_menu_layer_create(bounds, window, s_menu_sections, NUM_MENU_SECTIONS, NULL);
+  s_menu_layer = menu_layer_create(bounds);
+  menu_layer_set_callbacks(s_menu_layer, NULL, (MenuLayerCallbacks) {
+    .get_num_sections  = menu_get_num_sections_callback,
+    .get_num_rows      = menu_get_num_rows_callback,
+    .get_header_height = menu_get_header_height_callback,
+    .draw_header       = menu_draw_header_callback,
+    .draw_row          = menu_draw_row_callback,
+    .select_click      = menu_select_callback
+  });
 
-  layer_add_child(window_layer, simple_menu_layer_get_layer(s_simple_menu_layer));
+  menu_layer_set_click_config_onto_window(s_menu_layer, window);
+  layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
+
 }
 
-void main_window_unload(Window *window) {
-  simple_menu_layer_destroy(s_simple_menu_layer);
+static void window_unload(Window *window) {
+  menu_layer_destroy(s_menu_layer);
 }
 
 static void init() {
-  s_main_window = window_create();
-  window_set_window_handlers(s_main_window, (WindowHandlers) {
-    .load = main_window_load,
-    .unload = main_window_unload,
+  s_window = window_create();
+  window_set_window_handlers(s_window, (WindowHandlers) {
+    .load = window_load,
+    .unload = window_unload,
   });
-  window_stack_push(s_main_window, true);
+  window_stack_push(s_window, true);
 }
 
 static void deinit() {
-  window_destroy(s_main_window);
+  window_destroy(s_window);
 }
 
 void stops_refresh_ui() {
-  int i;
-  for(i = 0; i < NB_STOPS; i++) {
-    s_first_menu_items[i].title = data_stops_names[i];
-  }
-  stops_mark_dirty();
+  menu_layer_reload_data(s_menu_layer);
 }
 
 void print_stops_menu() {

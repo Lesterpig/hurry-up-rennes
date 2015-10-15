@@ -20,7 +20,7 @@ Pebble.addEventListener('ready', function() {
 Pebble.addEventListener('appmessage',
   function(e) {
     console.log('Received message: ' + JSON.stringify(e.payload));
-    var stopIndex = Number(e.payload['KEY_ASK_STOP']);
+    var stopIndex = Number(e.payload.KEY_ASK_STOP);
 
     if(!savedStops[stopIndex]) {
       return
@@ -45,9 +45,6 @@ function locationSuccess(pos) {
   var lon = pos.coords.longitude
 
   var bests = [];
-  function refreshOrder() {
-    bests.sort(function(a,b) { return a.dist - b.dist }) // ascending order
-  }
 
   for (var stopName in stops) {
     var stop = stops[stopName]
@@ -62,16 +59,18 @@ function locationSuccess(pos) {
 
     // Update bests if needed
 
-    if (bests.length < 3) { // Available seat, take it
+    if(stopData.dist <= 1) {
       bests.push(stopData)
-      refreshOrder()
-    } else if(bests[bests.length - 1].dist > stopData.dist) { // Replace the farther stop
-      bests[bests.length - 1] = stopData
-      refreshOrder()
     }
   }
 
-  savedStops = bests
-  communication.sendStops(savedStops)
+  bests.sort(function(a,b) { return a.dist - b.dist }) // ascending order
+  bests.splice(10) // get only the 10 first stops
+
+  bests.forEach(function(e,i) {
+    savedStops[10 + i] = e
+  })
+
+  communication.sendStops(bests, true)
 
 }
