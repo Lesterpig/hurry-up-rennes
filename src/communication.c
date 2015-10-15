@@ -112,6 +112,16 @@ void ask_for_stop_times(int stop_id) {
   app_message_outbox_send();
 }
 
+void ask_for_bookmark(int stop_id) {
+
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  dict_write_int(iter, KEY_ASK_BOOK, &stop_id, sizeof(int), true);
+  dict_write_end(iter);
+  app_message_outbox_send();
+
+}
+
 void init_communications() {
   app_message_register_inbox_received(inbox_callback);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());

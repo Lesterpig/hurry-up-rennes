@@ -3,9 +3,9 @@
   "shortName": "Hurry Up!",
   "longName": "Hurry Up! Rennes",
   "companyName": "Lesterpig",
-  "versionLabel": "1.0",
+  "versionLabel": "0.1",
   "sdkVersion": "3",
-  "targetPlatforms": ["aplite"],
+  "targetPlatforms": ["aplite", "basalt"],
   "watchapp": {
     "watchface": false
   },
@@ -16,7 +16,8 @@
     "KEY_NO_STOPS_BOOK" : 20,
     "KEY_NO_STOPS_NEAR" : 21,
     "KEY_NO_STOP_TIMES" : 22,
-    "KEY_ASK_STOP"      : 100
+    "KEY_ASK_STOP"      : 100,
+    "KEY_ASK_BOOK"      : 101
   },
   "resources": {
     "media": []

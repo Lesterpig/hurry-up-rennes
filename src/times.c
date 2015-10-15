@@ -28,7 +28,13 @@ static int16_t menu_layer_get_cell_height_callback(struct MenuLayer *menu_layer,
 
 static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
 
-  graphics_context_set_text_color(ctx, GColorBlack);
+  MenuIndex selected_index = menu_layer_get_selected_index(s_menu_layer);
+
+  if(selected_index.row == cell_index->row) {
+    graphics_context_set_text_color(ctx, GColorWhite);
+  } else {
+    graphics_context_set_text_color(ctx, GColorBlack);
+  }
   GRect bounds = layer_get_bounds(cell_layer);
 
   if (data_nb_stop_times > 0) {
@@ -54,6 +60,17 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
   }
 
 }
+
+static void menu_long_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
+  ask_for_bookmark(current_stop_id);
+  static const uint32_t const segments[] = { 50, 200, 50 };
+  VibePattern pat = {
+    .durations = segments,
+    .num_segments = 3
+  };
+  vibes_enqueue_custom_pattern(pat);
+}
+
 // Window initialization
 
 static void window_load(Window* window) {
@@ -67,7 +84,8 @@ static void window_load(Window* window) {
     .get_header_height = menu_get_header_height_callback,
     .draw_header       = menu_draw_header_callback,
     .get_cell_height   = menu_layer_get_cell_height_callback,
-    .draw_row          = menu_draw_row_callback
+    .draw_row          = menu_draw_row_callback,
+    .select_long_click = menu_long_select_callback
   });
 
   menu_layer_set_click_config_onto_window(s_menu_layer, window);

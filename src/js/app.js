@@ -9,6 +9,14 @@ var api           = require('./api.js')
 var savedStops = []
 
 Pebble.addEventListener('ready', function() {
+
+  if(localStorage.bookmarks) {
+    try {
+      savedStops = JSON.parse(localStorage.bookmarks)
+      communication.sendStops(savedStops, false)
+    } catch(e) {}
+  }
+
   console.log('Ready! Retrieving location...')
   navigator.geolocation.getCurrentPosition(
     locationSuccess,
@@ -20,20 +28,25 @@ Pebble.addEventListener('ready', function() {
 Pebble.addEventListener('appmessage',
   function(e) {
     console.log('Received message: ' + JSON.stringify(e.payload));
-    var stopIndex = Number(e.payload.KEY_ASK_STOP);
 
-    if(!savedStops[stopIndex]) {
-      return
+    var asked_times_index = Number(e.payload.KEY_ASK_STOP);
+    var asked_book_index  = Number(e.payload.KEY_ASK_BOOK);
+
+    if(!isNaN(asked_times_index) && savedStops[asked_times_index]) {
+
+      // Request API
+      api.getTimes(savedStops[asked_times_index].ids, function(err, res) {
+        if(err) {
+          return console.log('Error while fetching API: ' + err)
+        }
+        communication.sendTimes(res)
+      })
+
     }
 
-    // Request API
-    api.getTimes(savedStops[stopIndex].ids, function(err, res) {
-      if(err) {
-        return console.log('Error while fetching API: ' + err)
-      }
-      communication.sendTimes(res)
-    })
-
+    if(!isNaN(asked_book_index)) {
+      manageBookmark(asked_book_index)
+    }
   }
 );
 
@@ -59,7 +72,7 @@ function locationSuccess(pos) {
 
     // Update bests if needed
 
-    if(stopData.dist <= 1) {
+    if (stopData.dist <= 1) {
       bests.push(stopData)
     }
   }
@@ -73,4 +86,46 @@ function locationSuccess(pos) {
 
   communication.sendStops(bests, true)
 
+}
+
+function manageBookmark(index) {
+
+  if (index < 10) { // Remove bookmark
+    savedStops[index] = undefined;
+  }
+
+  var bookmarks = []
+  var nb = 0
+  for (var i = 0; i < 10; i++) {
+    if (savedStops[i]) {
+      bookmarks.push(savedStops[i])
+      nb++
+    }
+  }
+
+  if (index >= 10) {
+    var msg
+    if (nb === 10) {
+      msg = 'You have reached the max number of bookmarks :('
+    }
+    else {
+      bookmarks.push(savedStops[index])
+      msg = 'Bookmark ' + savedStops[index].name.toUpperCase() + ' added!'
+    }
+
+    // Emit notification to watch
+    Pebble.showSimpleNotificationOnPebble('Hurry Up!', msg)
+  }
+
+  // Save in phone
+
+  localStorage.bookmarks = bookmarks.length > 0 ? JSON.stringify(bookmarks) : undefined
+
+  // Emit to watch and save in RAM
+
+  bookmarks.forEach(function(e,i) {
+    savedStops[i] = e
+  })
+
+  communication.sendStops(bookmarks, false)
 }

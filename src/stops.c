@@ -71,6 +71,7 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
   print_times_menu(index);
 }
 
+
 static void window_load(Window *window) {
 
   Layer *window_layer = window_get_root_layer(window);
@@ -83,7 +84,7 @@ static void window_load(Window *window) {
     .get_header_height = menu_get_header_height_callback,
     .draw_header       = menu_draw_header_callback,
     .draw_row          = menu_draw_row_callback,
-    .select_click      = menu_select_callback
+    .select_click      = menu_select_callback,
   });
 
   menu_layer_set_click_config_onto_window(s_menu_layer, window);

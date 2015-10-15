@@ -8,6 +8,7 @@
 #define KEY_NO_STOPS_NEAR 21
 #define KEY_NO_STOP_TIMES 22
 #define KEY_ASK_STOP      100
+#define KEY_ASK_BOOK      101
 
 #define MAX_BOOK_STOPS   10
 #define MAX_NEAR_STOPS   10
@@ -44,7 +45,9 @@ extern stop_time* data_stop_times;
 void print_stops_menu();
 void print_times_menu(int stop_id);
 void init_communications();
+
 void ask_for_stop_times(int stop_id);
+void ask_for_bookmark(int stop_id);
 
 // Refresh functions for UI
 
