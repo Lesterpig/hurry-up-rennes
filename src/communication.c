@@ -95,6 +95,14 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
 
 }
 
+static void send_int(int key, int value) {
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  dict_write_int(iter, key, &value, sizeof(int), true);
+  dict_write_end(iter);
+  app_message_outbox_send();
+}
+
 void ask_for_stop_times(int stop_id) {
 
   // Reset previous data if needed
@@ -104,22 +112,15 @@ void ask_for_stop_times(int stop_id) {
     data_stop_times = NULL;
   }
   data_nb_stop_times = -1;
-
-  DictionaryIterator *iter;
-  app_message_outbox_begin(&iter);
-  dict_write_int(iter, KEY_ASK_STOP, &stop_id, sizeof(int), true);
-  dict_write_end(iter);
-  app_message_outbox_send();
+  send_int(KEY_ASK_STOP, stop_id);
 }
 
 void ask_for_bookmark(int stop_id) {
+  send_int(KEY_ASK_BOOK, stop_id);
+}
 
-  DictionaryIterator *iter;
-  app_message_outbox_begin(&iter);
-  dict_write_int(iter, KEY_ASK_BOOK, &stop_id, sizeof(int), true);
-  dict_write_end(iter);
-  app_message_outbox_send();
-
+void ask_for_timeo(int timeo_id) {
+  send_int(KEY_ASK_TIMEO, timeo_id);
 }
 
 void init_communications() {

@@ -17,7 +17,8 @@
     "KEY_NO_STOPS_NEAR" : 21,
     "KEY_NO_STOP_TIMES" : 22,
     "KEY_ASK_STOP"      : 100,
-    "KEY_ASK_BOOK"      : 101
+    "KEY_ASK_BOOK"      : 101,
+    "KEY_ASK_TIMEO"     : 102
   },
   "resources": {
     "media": [

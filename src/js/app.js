@@ -31,8 +31,9 @@ Pebble.addEventListener('appmessage',
 
     var asked_times_index = Number(e.payload.KEY_ASK_STOP);
     var asked_book_index  = Number(e.payload.KEY_ASK_BOOK);
+    var asked_timeo_index = Number(e.payload.KEY_ASK_TIMEO);
 
-    if(!isNaN(asked_times_index) && savedStops[asked_times_index]) {
+    if (!isNaN(asked_times_index) && savedStops[asked_times_index]) {
 
       // Request API
       api.getTimes(savedStops[asked_times_index].ids, function(err, res) {
@@ -44,8 +45,26 @@ Pebble.addEventListener('appmessage',
 
     }
 
-    if(!isNaN(asked_book_index)) {
+    if (!isNaN(asked_book_index)) {
       manageBookmark(asked_book_index)
+    }
+
+    if (!isNaN(asked_timeo_index)) {
+
+      // Find stop by its id
+      var timeoStop = false;
+      for (var name in stops) {
+        stops[name].forEach(function(e) {
+          if (e.id === asked_timeo_index) {
+            timeoStop = true;
+          }
+        });
+        if (timeoStop) {
+          savedStops[20] = { ids: [asked_timeo_index], name: name };
+          manageBookmark(20);
+          break;
+        }
+      }
     }
   }
 );
@@ -112,17 +131,14 @@ function manageBookmark(index) {
       bookmarks.push(savedStops[index])
       msg = 'Bookmark ' + savedStops[index].name.toUpperCase() + ' added!'
     }
-
     // Emit notification to watch
     Pebble.showSimpleNotificationOnPebble('Hurry Up!', msg)
   }
 
   // Save in phone
-
   localStorage.bookmarks = bookmarks.length > 0 ? JSON.stringify(bookmarks) : undefined
 
   // Emit to watch and save in RAM
-
   bookmarks.forEach(function(e,i) {
     savedStops[i] = e
   })

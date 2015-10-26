@@ -8,9 +8,9 @@ static int nb_for_section(int section) {
     return 0;
   }
   if (data_nb_stops[section] < 0) {
-    return 1;
+    return 1 + (section == 0 ? 1 : 0);
   } else {
-    return data_nb_stops[section];
+    return data_nb_stops[section] + (section == 0 ? 1 : 0);
   }
 }
 
@@ -48,8 +48,10 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
     section = 1;
   }
 
-  if(data_nb_stops[section] == -1) {
+  if (data_nb_stops[section] == -1 && cell_index->row == 0) {
     menu_cell_basic_draw(ctx, cell_layer, "Loading...", NULL, NULL);
+  } else if (section == 0 && index == nb_for_section(0) - 1) {
+    menu_cell_basic_draw(ctx, cell_layer, "Add by TIMEO...", NULL, NULL);
   } else {
     menu_cell_basic_draw(ctx, cell_layer, data_stops[index], NULL, NULL);
   }
@@ -61,6 +63,9 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
   if (cell_index->section == 1 || nb_for_section(0) == 0) {
     index += MAX_BOOK_STOPS;
     section = 1;
+  } else if (index == nb_for_section(0) - 1) {
+    print_timeo_menu();
+    return;
   }
 
   if(data_nb_stops[section] <= 0) {

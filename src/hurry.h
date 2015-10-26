@@ -9,6 +9,7 @@
 #define KEY_NO_STOP_TIMES 22
 #define KEY_ASK_STOP      100
 #define KEY_ASK_BOOK      101
+#define KEY_ASK_TIMEO     102
 
 #define MAX_BOOK_STOPS   10
 #define MAX_NEAR_STOPS   10
@@ -50,10 +51,15 @@ void init_times_menu();
 void print_times_menu(int stop_id);
 void deinit_times_menu();
 
+void init_timeo_menu();
+void print_timeo_menu();
+void deinit_timeo_menu();
+
 void init_communications();
 
 void ask_for_stop_times(int stop_id);
 void ask_for_bookmark(int stop_id);
+void ask_for_timeo(int timeo_id);
 
 void stops_refresh_ui();
 void times_refresh_ui();
