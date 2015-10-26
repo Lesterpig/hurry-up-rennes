@@ -40,16 +40,20 @@ extern char* data_stops[MAX_STOPS];
 extern int data_nb_stop_times;
 extern stop_time* data_stop_times;
 
-// Starter functions
+// Public functions
 
+void init_stops_menu();
 void print_stops_menu();
+void deinit_stops_menu();
+
+void init_times_menu();
 void print_times_menu(int stop_id);
+void deinit_times_menu();
+
 void init_communications();
 
 void ask_for_stop_times(int stop_id);
 void ask_for_bookmark(int stop_id);
-
-// Refresh functions for UI
 
 void stops_refresh_ui();
 void times_refresh_ui();

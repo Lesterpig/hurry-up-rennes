@@ -96,22 +96,24 @@ static void window_unload(Window* window) {
   menu_layer_destroy(s_menu_layer);
 }
 
+void init_times_menu() {
+  s_window = window_create();
+  window_set_window_handlers(s_window, (WindowHandlers) {
+    .load = window_load,
+    .unload = window_unload
+  });
+}
+
+void deinit_times_menu() {
+  window_destroy(s_window);
+}
+
 void times_refresh_ui() {
   menu_layer_reload_data(s_menu_layer);
   vibes_short_pulse();
 }
 
 void print_times_menu(int stop_id) {
-
   current_stop_id = stop_id;
-
-  if (!s_window) {
-    s_window = window_create();
-    window_set_window_handlers(s_window, (WindowHandlers) {
-      .load = window_load,
-      .unload = window_unload
-    });
-  }
-
   window_stack_push(s_window, true);
 }

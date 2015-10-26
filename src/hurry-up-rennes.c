@@ -9,5 +9,12 @@ stop_time* data_stop_times = NULL;
 
 int main(void) {
   init_communications();
+  init_stops_menu();
+  init_times_menu();
+
   print_stops_menu();
+  app_event_loop();
+
+  deinit_times_menu();
+  deinit_stops_menu();
 }

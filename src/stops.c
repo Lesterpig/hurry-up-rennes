@@ -96,16 +96,15 @@ static void window_unload(Window *window) {
   menu_layer_destroy(s_menu_layer);
 }
 
-static void init() {
+void init_stops_menu() {
   s_window = window_create();
   window_set_window_handlers(s_window, (WindowHandlers) {
     .load = window_load,
     .unload = window_unload,
   });
-  window_stack_push(s_window, true);
 }
 
-static void deinit() {
+void deinit_stops_menu() {
   window_destroy(s_window);
 }
 
@@ -114,7 +113,5 @@ void stops_refresh_ui() {
 }
 
 void print_stops_menu() {
-  init();
-  app_event_loop();
-  deinit();
+  window_stack_push(s_window, true);
 }
