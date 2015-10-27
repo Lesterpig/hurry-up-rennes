@@ -3,7 +3,7 @@
   "shortName": "Hurry Up!",
   "longName": "Hurry Up! Rennes",
   "companyName": "Lesterpig",
-  "versionLabel": "0.1",
+  "versionLabel": "0.2",
   "sdkVersion": "3",
   "targetPlatforms": ["aplite", "basalt"],
   "watchapp": {
