@@ -1,5 +1,7 @@
 #include "hurry.h"
 
+static bool ready = false;
+
 static void save_stops(char* data, int length, bool nearest) {
 
   int max = (nearest ? MAX_NEAR_STOPS : MAX_BOOK_STOPS);
@@ -27,7 +29,9 @@ static void save_stops(char* data, int length, bool nearest) {
   }
 
   data_nb_stops[nearest ? 1 : 0] = nb;
-  stops_refresh_ui();
+  if (ready) {
+    stops_refresh_ui();
+  }
 
 }
 
@@ -53,8 +57,9 @@ static void save_stop_times(stop_time* times, int length) {
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Saved %d stop times in memory - %d bytes", data_nb_stop_times, length);
 
-
-  times_refresh_ui();
+  if (ready) {
+    times_refresh_ui();
+  }
 
   int i;
   for (i = 0; i < data_nb_stop_times; i++) {
@@ -78,6 +83,9 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
     switch (t->key) {
       case KEY_STOPS_BOOK:
         save_stops((char *) t->value->data, (int) t->length, false);
+        if (t->length <= PERSIST_DATA_MAX_LENGTH) {
+          persist_write_data(STORAGE_BOOK_KEY, t->value->data, t->length);
+        }
         break;
       case KEY_STOPS_NEAR:
         save_stops((char *) t->value->data, (int) t->length, true);
@@ -124,6 +132,21 @@ void ask_for_timeo(int timeo_id) {
 }
 
 void init_communications() {
+  // Fetch stored bookmarks
+  char buffer[PERSIST_DATA_MAX_LENGTH];
+  int length;
+  length = persist_read_data(STORAGE_BOOK_KEY, buffer, PERSIST_DATA_MAX_LENGTH);
+
+  if (length != E_DOES_NOT_EXIST) {
+    save_stops((char *) buffer, length, false);
+  }
+
+  // Init callbacks
   app_message_register_inbox_received(inbox_callback);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
+
+void set_ready(bool r) {
+  ready = r;
+}
+

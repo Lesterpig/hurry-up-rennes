@@ -13,7 +13,6 @@ Pebble.addEventListener('ready', function() {
   if(localStorage.bookmarks) {
     try {
       savedStops = JSON.parse(localStorage.bookmarks)
-      communication.sendStops(savedStops, false)
     } catch(e) {}
   }
 

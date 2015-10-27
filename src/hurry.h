@@ -11,6 +11,8 @@
 #define KEY_ASK_BOOK      101
 #define KEY_ASK_TIMEO     102
 
+#define STORAGE_BOOK_KEY  0
+
 #define MAX_BOOK_STOPS   10
 #define MAX_NEAR_STOPS   10
 #define MAX_STOPS        (MAX_BOOK_STOPS + MAX_NEAR_STOPS)
@@ -63,4 +65,6 @@ void ask_for_timeo(int timeo_id);
 
 void stops_refresh_ui();
 void times_refresh_ui();
+
+void set_ready(bool);
 

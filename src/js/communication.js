@@ -9,7 +9,7 @@ module.exports = {
 
     var data = []
     stops.forEach(function(s) {
-      data.push(s.name + '\0')
+      data.push(s.name.substr(0,20) + '\0') // data should not be longer than 20*10+10 < 256B
     })
 
     var obj  = {}

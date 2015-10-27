@@ -14,6 +14,7 @@ int main(void) {
   init_timeo_menu();
 
   print_stops_menu();
+  set_ready(true);
   app_event_loop();
 
   deinit_timeo_menu();
