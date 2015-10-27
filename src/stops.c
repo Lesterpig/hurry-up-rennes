@@ -3,6 +3,10 @@
 static Window *s_window;
 static MenuLayer *s_menu_layer;
 
+static GBitmap *s_add_icon;
+static GBitmap *s_bookmark_icon;
+static GBitmap *s_near_icon;
+
 static int nb_for_section(int section) {
   if (section > 2) {
     return 0;
@@ -51,9 +55,10 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
   if (data_nb_stops[section] == -1 && cell_index->row == 0) {
     menu_cell_basic_draw(ctx, cell_layer, "Loading...", NULL, NULL);
   } else if (section == 0 && index == nb_for_section(0) - 1) {
-    menu_cell_basic_draw(ctx, cell_layer, "Add by TIMEO...", NULL, NULL);
+    menu_cell_basic_draw(ctx, cell_layer, "Add bookmark", "TIMEO code", s_add_icon);
   } else {
-    menu_cell_basic_draw(ctx, cell_layer, data_stops[index], NULL, NULL);
+    GBitmap* icon = (section == 0 ? s_bookmark_icon : s_near_icon);
+    menu_cell_basic_draw(ctx, cell_layer, data_stops[index], NULL, icon);
   }
 }
 
@@ -82,6 +87,10 @@ static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
 
+  s_add_icon = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ADD_ICON);
+  s_bookmark_icon = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BOOKMARK_ICON);
+  s_near_icon = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_NEAR_ICON);
+
   s_menu_layer = menu_layer_create(bounds);
   menu_layer_set_callbacks(s_menu_layer, NULL, (MenuLayerCallbacks) {
     .get_num_sections  = menu_get_num_sections_callback,
@@ -99,6 +108,9 @@ static void window_load(Window *window) {
 
 static void window_unload(Window *window) {
   menu_layer_destroy(s_menu_layer);
+  gbitmap_destroy(s_add_icon);
+  gbitmap_destroy(s_bookmark_icon);
+  gbitmap_destroy(s_near_icon);
 }
 
 void init_stops_menu() {

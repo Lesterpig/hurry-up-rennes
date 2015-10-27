@@ -27,6 +27,21 @@
         "type": "png",
         "name": "IMAGE_MENU_ICON",
         "file": "images/menu_icon.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_ADD_ICON",
+        "file": "images/add_icon.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_NEAR_ICON",
+        "file": "images/near_icon.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BOOKMARK_ICON",
+        "file": "images/bookmark_icon.png"
       }
     ]
   },
