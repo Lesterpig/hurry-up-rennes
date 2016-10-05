@@ -5,7 +5,8 @@
   "companyName": "Lesterpig",
   "versionLabel": "0.2",
   "sdkVersion": "3",
-  "targetPlatforms": ["aplite", "basalt"],
+  "targetPlatforms": ["aplite", "basalt", "chalk"],
+  "enableMultiJS": true,
   "watchapp": {
     "watchface": false
   },
