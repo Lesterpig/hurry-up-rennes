@@ -1,7 +1,7 @@
 
 /* Start file for embedded javascript */
 
-var stops         = require('../../data/stops.json')
+var stops         = require('./stops.js')
 var math          = require('./math.js')
 var communication = require('./communication.js')
 var api           = require('./api.js')
