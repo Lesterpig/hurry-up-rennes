@@ -30,10 +30,6 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
 
   MenuIndex selected_index = menu_layer_get_selected_index(s_menu_layer);
 
-#ifdef PBL_PLATFORM_APLITE
-  graphics_context_set_text_color(ctx, GColorBlack);
-#endif
-
   GRect bounds = layer_get_bounds(cell_layer);
 
   if (data_nb_stop_times > 0) {

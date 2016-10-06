@@ -1,70 +1,72 @@
-var async   = require('async')
-   ,cached  = require('request-easy-cache').CachedRequest
-   ,app     = require('express')()
-   ,compute = require('./compute')
-   ,conf    = require('./config.json')
+"use strict"
+
+var cached  = require('request-easy-cache').CachedRequest
+var moment  = require('moment')
+var app     = require('express')()
+var conf    = require('./config.json')
+var stops   = require('./stops.json')
 
 var request = new cached({
   cache: {
-    max: 500,
-    maxAge: 30000
+    max    : 500,
+    maxAge : 30000
   }
 })
 
-var base_url = 'http://data.keolis-rennes.com/json/?cmd=getbusnextdepartures&version=2.2&key=' + conf.starKey + '&param[mode]=stop'
+const baseUrl = 'https://data.explore.star.fr/api/records/1.0/search/?apikey=' + conf.starKey + '&dataset=tco-bus-circulation-passages-tr&sort=-depart&rows=10&q=idarret:'
 
-app.get('/next-buses/:stops', function(req, res) {
+app.get('/stops', (req, res) => {
+  res.send(stops)
+})
 
-  var output = []
-  var stops  = req.params.stops.split(',').map(function(e) { return Number(e) })
-  var fns    = [] // functions to execute to fetch results
+app.get('/next-buses/:stops', (req, res) => {
+  let output = []
+  let stops  = req.params.stops.split(',').map((e) => { return Number(e) })
+  let fns    = [] // functions to execute to fetch results
 
-  while(stops.length > 0) {
-    (function(stops_set) {
-      fns.push(function(cb) {
+  let q = "["
+  stops.forEach((e, i) => {
+    if (i > 0) {
+      q += " OR "
+    }
+    q += e
+  })
 
-        var url = base_url
-
-        stops_set.forEach(function(e) {
-          url += '&param[stop][]=' + e
-        })
-
-        request.get(url, {
-          'json' : true
-        }, function(err, result, body) {
-
-          if(err || result.statusCode < 200 || result.statusCode >= 400) {
-            return cb(err)
-          }
-
-          if(!body.opendata
-              || !body.opendata.answer
-              || !body.opendata.answer.status
-              || !body.opendata.answer.status['@attributes']
-              || body.opendata.answer.status['@attributes'].code !== "0") {
-            return cb(body.opendata.answer.status['@attributes'].message)
-          }
-
-          compute.nextBuses(body.opendata.answer.data, output, cb)
-
-        })
-
-      })
-    })(stops.splice(0, 10))
-  }
-
-  async.parallel(fns, function(e, r) {
-    if(e) {
-      console.error(e)
+  request.get(baseUrl + q, {
+    json: true
+  }, (err, result, body) => {
+    if (err || result.statusCode < 200 || result.statusCode >= 400) {
       return res.sendStatus(500)
     }
 
-    output.sort(function(a,b) { return a.time - b.time })
+    let output = []
+    body.records.forEach((record) => {
+      let serverTime = moment(record.record_timestamp)
+      let departureTime = moment(record.fields.depart)
+      let remainingTime = Math.floor((departureTime - serverTime) / (60000))
+      output.push({
+        line        : record.fields.nomcourtligne,
+        accurate    : record.fields.precision === "Temps réel",
+        destination : cleanStr(record.fields.destination),
+        time        : remainingTime,
+      })
+    })
+
     res.send(output)
-  });
-
+  })
 })
 
-app.listen(conf.port || 3000, function() {
-  console.log('-- Hurry Up! web server is ready on port ' + (conf.port || 3000))
+var port = conf.port || 3000
+app.listen(port, function() {
+  console.log('-- Hurry Up! api proxy server is ready on port ' + port)
 })
+
+function cleanStr(str) {
+  return str
+    .replace(/\s\|?\s+/g,' ')
+    .replace(/[àâä]/g,  'a')
+    .replace(/[éèêë]/g, 'e')
+    .replace(/[îï]/g,   'i')
+    .replace(/[ôö]/g,   'o')
+    .replace(/[ùûü]/g,  'u')
+}

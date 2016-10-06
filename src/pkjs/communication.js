@@ -2,9 +2,9 @@ module.exports = {
 
   sendStops : function(stops, nearest) {
 
-    var key = 'KEY_STOPS_BOOK'
+    var key = "STOPS_BOOK"
     if(nearest) {
-      key = 'KEY_STOPS_NEAR'
+      key = "STOPS_NEAR"
     }
 
     var data = []
@@ -35,7 +35,7 @@ module.exports = {
     if(times.length === 0) {
 
       msg = {
-        'KEY_NO_STOP_TIMES' : 1
+        'NO_STOP_TIMES' : 1
       }
 
     } else {
@@ -50,7 +50,7 @@ module.exports = {
       })
 
       msg = {
-        'KEY_STOP_TIMES' : data.slice(0,50)
+        'STOP_TIMES' : data.slice(0,50)
       }
 
     }

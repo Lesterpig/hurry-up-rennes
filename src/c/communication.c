@@ -49,7 +49,7 @@ static void save_stop_times(stop_time* times, int length) {
 
   data_stop_times = malloc(data_nb_stop_times * sizeof(stop_time));
   if (data_stop_times == NULL) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Unable to save stop times!");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Unable to save %d stop times!", data_nb_stop_times);
     return;
   }
 
@@ -80,23 +80,18 @@ static void inbox_callback(DictionaryIterator *iterator, void *context) {
   Tuple *t = dict_read_first(iterator);
 
   while (t != NULL) {
-    switch (t->key) {
-      case KEY_STOPS_BOOK:
-        save_stops((char *) t->value->data, (int) t->length, false);
-        if (t->length <= PERSIST_DATA_MAX_LENGTH) {
-          persist_write_data(STORAGE_BOOK_KEY, t->value->data, t->length);
-        }
-        break;
-      case KEY_STOPS_NEAR:
+    if (t->key == MESSAGE_KEY_STOPS_BOOK) {
+      save_stops((char *) t->value->data, (int) t->length, false);
+      if (t->length <= PERSIST_DATA_MAX_LENGTH) {
+        persist_write_data(STORAGE_BOOK_KEY, t->value->data, t->length);
+      }
+    } else if (t->key == MESSAGE_KEY_STOPS_NEAR) {
         save_stops((char *) t->value->data, (int) t->length, true);
-        break;
-      case KEY_STOP_TIMES:
+    } else if (t->key == MESSAGE_KEY_STOP_TIMES) {
         save_stop_times((stop_time*) t->value->data, (int) t->length);
-        break;
-      case KEY_NO_STOP_TIMES:
+    } else if (t->key == MESSAGE_KEY_NO_STOP_TIMES) {
         data_nb_stop_times = -2;
         times_refresh_ui();
-        break;
     }
     t = dict_read_next(iterator);
   }
@@ -120,15 +115,15 @@ void ask_for_stop_times(int stop_id) {
     data_stop_times = NULL;
   }
   data_nb_stop_times = -1;
-  send_int(KEY_ASK_STOP, stop_id);
+  send_int(MESSAGE_KEY_ASK_STOP, stop_id);
 }
 
 void ask_for_bookmark(int stop_id) {
-  send_int(KEY_ASK_BOOK, stop_id);
+  send_int(MESSAGE_KEY_ASK_BOOK, stop_id);
 }
 
 void ask_for_timeo(int timeo_id) {
-  send_int(KEY_ASK_TIMEO, timeo_id);
+  send_int(MESSAGE_KEY_ASK_TIMEO, timeo_id);
 }
 
 void init_communications() {
@@ -141,9 +136,12 @@ void init_communications() {
     save_stops((char *) buffer, length, false);
   }
 
+  uint32_t inbox_size = sizeof(uint8_t) + MAX_STOP_TIMES * sizeof(stop_time);
+  uint32_t outbox_size = 256;
+
   // Init callbacks
   app_message_register_inbox_received(inbox_callback);
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  app_message_open(inbox_size, outbox_size);
 }
 
 void set_ready(bool r) {
