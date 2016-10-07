@@ -1,21 +1,12 @@
 #pragma once
 #include <pebble.h>
 
-#define KEY_STOPS_BOOK    0
-#define KEY_STOPS_NEAR    1
-#define KEY_STOP_TIMES    2
-#define KEY_NO_STOPS_BOOK 20
-#define KEY_NO_STOPS_NEAR 21
-#define KEY_NO_STOP_TIMES 22
-#define KEY_ASK_STOP      100
-#define KEY_ASK_BOOK      101
-#define KEY_ASK_TIMEO     102
-
 #define STORAGE_BOOK_KEY  0
 
 #define MAX_BOOK_STOPS   10
 #define MAX_NEAR_STOPS   10
 #define MAX_STOPS        (MAX_BOOK_STOPS + MAX_NEAR_STOPS)
+#define MAX_STOP_TIMES   10
 #define LINE_NB_LENGTH   3
 #define LINE_DIR_LENGTH  20
 #define LINE_TIME_LENGTH 3

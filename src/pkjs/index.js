@@ -1,39 +1,41 @@
-
 /* Start file for embedded javascript */
+console.log('Loaded javascript for Hurry Up!')
 
-var stops         = require('./stops.js')
 var math          = require('./math.js')
 var communication = require('./communication.js')
 var api           = require('./api.js')
 
+var stops = {}
 var savedStops = []
 
 Pebble.addEventListener('ready', function() {
-
   if(localStorage.bookmarks) {
     try {
       savedStops = JSON.parse(localStorage.bookmarks)
     } catch(e) {}
   }
 
-  console.log('Ready! Retrieving location...')
-  navigator.geolocation.getCurrentPosition(
-    locationSuccess,
-    function(err) { console.error("Unable to retrieve location!") },
-    {timeout: 15000, maximumAge: 60000}
-  );
-});
+  console.log('Retrieving stop list...')
+  api.getStops(function(err, fetchedStops) {
+    stops = fetchedStops
+    console.log('Ready! Retrieving location...')
+    navigator.geolocation.getCurrentPosition(
+      locationSuccess,
+      function(err) { console.error("Unable to retrieve location!") },
+      {timeout: 30000, maximumAge: 60000}
+    )
+  })
+})
 
 Pebble.addEventListener('appmessage',
   function(e) {
     console.log('Received message: ' + JSON.stringify(e.payload));
 
-    var asked_times_index = Number(e.payload.KEY_ASK_STOP);
-    var asked_book_index  = Number(e.payload.KEY_ASK_BOOK);
-    var asked_timeo_index = Number(e.payload.KEY_ASK_TIMEO);
+    var asked_times_index = Number(e.payload.ASK_STOP);
+    var asked_book_index  = Number(e.payload.ASK_BOOK);
+    var asked_timeo_index = Number(e.payload.ASK_TIMEO);
 
     if (!isNaN(asked_times_index) && savedStops[asked_times_index]) {
-
       // Request API
       api.getTimes(savedStops[asked_times_index].ids, function(err, res) {
         if(err) {
@@ -41,7 +43,6 @@ Pebble.addEventListener('appmessage',
         }
         communication.sendTimes(res)
       })
-
     }
 
     if (!isNaN(asked_book_index)) {
@@ -49,15 +50,14 @@ Pebble.addEventListener('appmessage',
     }
 
     if (!isNaN(asked_timeo_index)) {
-
       // Find stop by its id
       var timeoStop = false;
       for (var name in stops) {
         stops[name].forEach(function(e) {
-          if (e.id === asked_timeo_index) {
+          if (e[0] === asked_timeo_index) {
             timeoStop = true;
           }
-        });
+        })
         if (timeoStop) {
           savedStops[20] = { ids: [asked_timeo_index], name: name };
           manageBookmark(20);
@@ -81,8 +81,8 @@ function locationSuccess(pos) {
     var stop = stops[stopName]
     var stopData = { ids: [], dist: Infinity, name: stopName }
     for (var i = 0; i < stop.length; i++) {
-      var thisDistance = math.getDistanceFromLatLonInKm(lat, lon, stop[i].lat, stop[i].lon)
-      stopData.ids.push(stop[i].id)
+      var thisDistance = math.getDistanceFromLatLonInKm(lat, lon, stop[i][1], stop[i][2])
+      stopData.ids.push(stop[i][0])
       if (stopData.dist > thisDistance) {
         stopData.dist = thisDistance
       }
