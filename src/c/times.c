@@ -6,7 +6,6 @@ static int current_stop_id;
 static Window *s_window;
 static MenuLayer *s_menu_layer;
 
-
 // Callbacks for menu dynamic definition
 
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
@@ -18,7 +17,17 @@ static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t s
 }
 
 static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
-  menu_cell_basic_header_draw(ctx, cell_layer, data_stops[current_stop_id]);
+  char s_time_text[] = "00:00";
+  time_t s_time;
+  time(&s_time);
+  strftime(s_time_text, sizeof(s_time_text), "%H:%M", localtime(&s_time));
+
+  char s_title[30];
+  strncpy(s_title, data_stops[current_stop_id], 24);
+  strcat(s_title, " ");
+  strcat(s_title, s_time_text);
+
+  menu_cell_basic_header_draw(ctx, cell_layer, s_title);
 }
 
 
@@ -27,8 +36,6 @@ static int16_t menu_layer_get_cell_height_callback(struct MenuLayer *menu_layer,
 }
 
 static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
-
-  MenuIndex selected_index = menu_layer_get_selected_index(s_menu_layer);
 
   GRect bounds = layer_get_bounds(cell_layer);
 
@@ -66,6 +73,10 @@ static void menu_long_select_callback(MenuLayer *menu_layer, MenuIndex *cell_ind
   vibes_enqueue_custom_pattern(pat);
 }
 
+static void menu_short_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
+  ask_for_stop_times(current_stop_id);
+}
+
 // Window initialization
 
 static void window_load(Window* window) {
@@ -80,7 +91,8 @@ static void window_load(Window* window) {
     .draw_header       = menu_draw_header_callback,
     .get_cell_height   = menu_layer_get_cell_height_callback,
     .draw_row          = menu_draw_row_callback,
-    .select_long_click = menu_long_select_callback
+    .select_long_click = menu_long_select_callback,
+    .select_click      = menu_short_select_callback
   });
 
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
