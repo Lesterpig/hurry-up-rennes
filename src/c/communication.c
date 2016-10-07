@@ -107,9 +107,7 @@ static void send_int(int key, int value) {
 }
 
 void ask_for_stop_times(int stop_id) {
-
   // Reset previous data if needed
-
   if (data_nb_stop_times > 0) {
     free(data_stop_times);
     data_stop_times = NULL;
