@@ -41,9 +41,8 @@ app.get('/next-buses/:stops', (req, res) => {
 
     let output = []
     body.records.forEach((record) => {
-      let serverTime = moment(record.record_timestamp)
       let departureTime = moment(record.fields.depart)
-      let remainingTime = Math.floor((departureTime - serverTime) / (60000))
+      let remainingTime = Math.floor((departureTime - moment()) / (60000))
       output.push({
         line        : record.fields.nomcourtligne,
         accurate    : record.fields.precision === "Temps réel",
